@@ -4,9 +4,15 @@ with gestion_fractions; use gestion_fractions;
 with gestion_polynomes; use gestion_polynomes;
 
 procedure calcul_polynomes is
-    polynome1 : T_Polynome := (Degre => 2, Coeff => (0 => (1, 2), 1 => (2, 3), 2 => (3, 4)));
-    polynome2 : T_Polynome := (Degre => 3, Coeff => (0 => (1, 2), 1 => (5, 3), 2 => (3, 4), 3 => (3, 7)));
-    frac : T_Fraction := (3, 1);
+    --polynome1 : T_Polynome := (Degre => 2, Coeff => (0 => (1, 2), 1 => (2, 3), 2 => (3, 4)));
+    --polynome2 : T_Polynome := (Degre => 3, Coeff => (0 => (1, 2), 1 => (5, 3), 2 => (3, 4), 3 => (3, 7)));
+
+    polynome1 : T_Polynome := (Degre => 4, Coeff => (0 => (1, 2), 1 => (5, 2), 2 => (-2, 1), 3 => (13, 4), 4 => (1, 1)));
+    polynome2 : T_Polynome := (Degre => 2, Coeff => (0 => (-3, 2), 1 => (7, 2), 2 => (1, 1)));
+
+    Poly : T_Polynome := (Degre => 2, Coeff => (0 => (-3, 2), 1 => (7, 2), 2 => (15, 7)));
+
+    frac : T_Fraction := (1, 1);
     f : T_Fraction := (3, 6);
 begin
     Put("Addition : ");
@@ -23,5 +29,17 @@ begin
 
     Put("Multiplication par 3 : ");
     Put(polynome1 * frac);
+    New_Line(1);
+
+    Put("Division : ");
+    Put(polynome1 / polynome2);
+    New_Line(1);
+
+    Put("Reste de la division : ");
+    Put(Reste(polynome1, polynome2));
+    New_Line(1);
+
+    Put("Evaluation en X = 1 : ");
+    Put(Eval(Poly, frac));
     New_Line(1);
 end calcul_polynomes;

@@ -55,7 +55,7 @@ PACKAGE BODY Gestion_Fractions IS
     BEGIN
 	if Frac.Num /= 0 then
 	    Divisor := PGCD (abs(Frac.Num), abs(Frac.Denum));
-	else
+        else
 	    Divisor := Frac.Denum;
 	end if;
 	    Frac.Num := Frac.Num / Divisor;

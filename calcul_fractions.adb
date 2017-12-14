@@ -11,6 +11,7 @@ PROCEDURE Calcul_Fractions IS
    Frac1 : T_Fraction := (Num => 1, Denum => 1);
    Frac2 : T_Fraction := (Num => 1, Denum => 1);
    Nb    : Integer;
+   INVALID_OPERATION : Exception;
 
 BEGIN
    -- Lecture des arguments et assignation des valeurs.
@@ -25,7 +26,7 @@ BEGIN
          ELSIF Argument(2) = "/" THEN
             Put(Nb / Frac1);
          ELSE
-            Put("Operation non valide.");
+            raise INVALID_OPERATION;
          END IF;
       ELSE  -- Si l'operateur est a la troixieme place. (Fraction à gauche et scalaire à droite.)
          Nb := Integer'Value(Argument(4));
@@ -39,7 +40,7 @@ BEGIN
          ELSIF Argument(3) = "p" THEN
             Put(Frac1 ** Nb);
          ELSE
-            Put("Operation non valide.");
+            raise INVALID_OPERATION;
          END IF;
       END IF;
    ELSIF Argument_Count = 5 THEN -- S'il y a 5 arguments. (2 fractions & 1 scalaire)
@@ -56,16 +57,16 @@ BEGIN
          WHEN '/' =>
             Put(Frac1 / Frac2);
          WHEN OTHERS =>
-            Put("Operation non valide.");
+            raise INVALID_OPERATION;
       END CASE;
    ELSIF Argument_Count = 3 THEN -- Si on veut faire un PGCD
       IF Argument(3) = "PGCD" THEN
          Put(Integer'Image(PGCD(Integer'Value(Argument(1)), Integer'Value(Argument(2)))));
       ELSE
-         Put("Operation non valide.");
+         raise INVALID_OPERATION;
       END IF;
    ELSE
-      Put("Operation non valide.");
+      raise INVALID_OPERATION;
    END IF;
 
 EXCEPTION
