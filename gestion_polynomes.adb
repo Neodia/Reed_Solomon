@@ -56,8 +56,6 @@ package body gestion_polynomes is
     end "+";
 
     function "-" (Left, Right : T_Polynome) return T_Polynome is
-        Little : T_Polynome;
-        Bigger : T_Polynome;
         Result : T_Polynome;
         I : Integer;
     begin
