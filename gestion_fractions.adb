@@ -6,6 +6,32 @@ USE Ada.Integer_Text_IO;
 -- Les entêtes des fonctions sont sur le fichier ads.
 PACKAGE BODY Gestion_Fractions IS
 
+    -- Ne fonctionne pas avec des compostantes composees de plus de deux chiffres.
+    procedure Get(Frac : in out T_Fraction) is
+        User_Input : String(1..5) := (others => ' ');
+        Last : Integer;
+        Result : T_Fraction;
+    begin
+        Get_Line(User_Input, Last);
+        if Last = 1 then -- S'il a entre un entier.
+            Result := (Integer'Value(String'(1 => User_Input(1))), 1);
+        elsif Last = 3 then -- S'il a entre une fraction avec deux chiffres.
+            Result := (Integer'Value(String'(1 => User_Input(1))), Integer'Value(String'(1 => User_Input(3))));
+        elsif Last = 4 then -- Si une des composantes de la fraction êst composé de 2 chiffres.
+            if Character'Pos(User_Input(2)) < 48 OR Character'Pos(User_Input(2)) > 57 then -- Si c'est le denumerateur.
+              Result := (Integer'Value(String'(1 => User_Input(1))), Integer'Value(String'(1 => User_Input(3), 2=> User_Input(4))));
+            else -- Si c'est le denumerateur.
+                Result := (Integer'Value(String'(1 => User_Input(1), 2 => User_Input(2))), Integer'Value(String'(1 => User_Input(4))));
+            end if;
+        elsif Last = 5 then
+            Result := (Integer'Value(String'(1 => User_Input(1), 2 => User_Input(2))), Integer'Value(String'(1 => User_Input(4), 2 => User_Input(5))));
+        else
+            raise Constraint_Error;
+        end if;
+        Reduire(Result);
+        Frac :=  Result;
+    end Get;
+
     PROCEDURE Get (
 		   Frac   : IN OUT T_Fraction;
 		   Nume,
@@ -53,6 +79,10 @@ PACKAGE BODY Gestion_Fractions IS
     PROCEDURE Reduire (Frac : IN OUT T_Fraction) IS
 	Divisor : Positive;
     BEGIN
+        if Frac.Denum = 0 then
+            raise DIV_PAR_ZERO;
+        end if;
+
 	if Frac.Num /= 0 then
 	    Divisor := PGCD (abs(Frac.Num), abs(Frac.Denum));
 

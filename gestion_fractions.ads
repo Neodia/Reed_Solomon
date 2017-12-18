@@ -4,7 +4,11 @@ PACKAGE Gestion_Fractions IS
          Num   : Integer;
          Denum : Integer;
       END RECORD;
-   DIV_PAR_ZERO : EXCEPTION;
+    DIV_PAR_ZERO : EXCEPTION;
+
+   -- Procedure qui lit l'entree utilisateur et qui affecte ces valeur a une variable T_Fraction.
+   -- Parametre <Frac>    : Fraction à initialiser.
+   PROCEDURE Get (Frac   : IN OUT T_Fraction);
 
    -- Procedure qui affecte les valeurs données dans une variable T_Fraction.
    -- Parametre <Frac>    : Fraction à initialiser.
