@@ -55,11 +55,21 @@ PACKAGE BODY Gestion_Fractions IS
     BEGIN
 	if Frac.Num /= 0 then
 	    Divisor := PGCD (abs(Frac.Num), abs(Frac.Denum));
-        else
-	    Divisor := Frac.Denum;
-	end if;
+
 	    Frac.Num := Frac.Num / Divisor;
 	    Frac.Denum := Frac.Denum / Divisor;
+
+	    if Frac.Num < 0 and Frac.Denum < 0 then
+		Frac.Num := abs(Frac.Num);
+		Frac.Denum := abs(Frac.Denum);
+	    elsif Frac.Denum < 0 then
+		Frac.Num := Frac.Num * (-1);
+		Frac.Denum := abs(Frac.Denum);
+	    end if;
+	else
+	    Frac.Num := 0;
+	    Frac.Denum := 1;
+	end if;
 	END Reduire;
 
 	FUNCTION "+" (
@@ -67,11 +77,14 @@ PACKAGE BODY Gestion_Fractions IS
 	       Right : T_Fraction)
 		  RETURN T_Fraction IS
 	    Result : T_Fraction;
-	BEGIN
+    BEGIN
+
 	    Result.Num := (Left.Num * Right.Denum) + (Right.Num * Left.Denum);
 	    Result.Denum := Left.Denum * Right.Denum;
 	    Reduire(Result);
-	    RETURN Result;
+	--Put(Result);
+	--New_Line;
+	RETURN Result;
 	END "+";
 
 	FUNCTION "-" (

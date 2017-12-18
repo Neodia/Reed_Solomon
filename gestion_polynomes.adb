@@ -73,15 +73,6 @@ package body gestion_polynomes is
                 Result.Coeff(I) := Left.Coeff(I) - Right.Coeff(I);
             end loop;
         else
-            --Sort_Polyn(Left, Right, Little, Bigger);
-            --Result := Bigger;
-            ---if Bigger.Degre = Right.Degre then  -- Si c'est le plus grand qui soustrait, on met au négatif les Coefficients qui sont plus grand que le degre du petit polynome.
-            --	Result * (-1);
-            --  end if;
-
-            --for I in Little.Coeff'Range loop -- On parcourt uniquement le plus petit des deux polynomes.
-            --Result.Coeff(I) := Left.Coeff(I) - Right.Coeff(I);
-            --   end loop;
             Result := Left + (Right * T_Fraction'(-1, 1));
         end if;
         return Result;
@@ -110,55 +101,48 @@ package body gestion_polynomes is
 
     function "/" (Left, Right : T_Polynome) return T_Polynome is
         Quotient : T_Polynome; -- Quotient a retourner a la fin.
-        Tmp : T_Polynome;      -- Variable temporaire pour la soustraction de deux polynomes apres avoir trouve une partie du quotient.
         Result : T_Polynome;   -- Resultat de la soustraction.
-        Right_Big_Coeff : T_Fraction := Right.Coeff(Right.Degre); -- Le plus grand coefficient du diviseur.
     begin
-        if Right.Degre > Left.Degre then -- Si le diviseur est de degre plus grand que le divisé, on retourne directement le diviseur.
-            Quotient := T_Polynome'(Degre => 0, Coeff => (0 => T_Fraction'(0, 1)));
-        else
-            Quotient := Alloc_Polyn(Left.Degre - Right.Degre); -- Le degre du quotient est egal au degre du divise moins le degre du diviseur.
-            Result := Left;
-            while Result.Degre >= Right.Degre loop
-                Quotient.Coeff(Result.Degre - Right.Degre) := (Result.Coeff(Result.Degre) / Right_Big_Coeff);
-                Tmp := Alloc_Polyn(Result.Degre);
-                for I in Right.Coeff'Range loop
-                    -- Cette ligne fait en sorte que la variable temporaire qui soustrait a comme plus grand coefficient celui du resultat,
-                    -- afin de pouvoir reduire petit a petit le degre du resultat.
-                    Tmp.Coeff(I + Result.Degre - Right.Degre) := Quotient.Coeff(Result.Degre - Right.Degre) * Right.Coeff(I);
-                end loop;
-                Result := Result - Tmp;
-            end loop;
-        end if;
-        return Quotient;
-    end "/";
+	if Right.Degre > Left.Degre then -- Si le diviseur est de degre plus grand que le divisé, on retourne directement le diviseur.
+	    Quotient := T_Polynome'(Degre => 0, Coeff => (0 => T_Fraction'(0, 1)));
+	else
+	    Quotient := Alloc_Polyn(Left.Degre - Right.Degre);
+	    Result := Left;
+	    for I in reverse Quotient.Coeff'Range loop
+		if Result.Degre >= Right.Degre then
+		    Quotient.Coeff(I) := Result.Coeff(Result.Degre) / Right.Coeff(Right.Degre);
+		    Result := Left -(Quotient * Right);
+		end if;
+	    end loop;
+	end if;
+	    return Quotient;
+	end "/";
 
     -- Cette fonction a procede de la meme facon que la division, mais retourne
     -- le dernier resultat de la soustraction trouve au lieu de retourner le quotient.
     function Reste (Left, Right : T_Polynome) return T_Polynome is
-        Tmp : T_Polynome;      -- Variable temporaire pour la soustraction de deux polynomes apres avoir trouve une partie du quotient.
+        Quotient : T_Polynome; -- Quotient a retourner a la fin.
         Result : T_Polynome;   -- Resultat de la soustraction.
-        Right_Big_Coeff : T_Fraction := Right.Coeff(Right.Degre); -- Le plus grand coefficient du diviseur.
     begin
-       if Right.Degre > Left.Degre then
-            Result := Right;
-        else
-            Result := Left;
-            while Result.Degre >= Right.Degre loop
-                Tmp := Alloc_Polyn(Result.Degre);
-                for I in Right.Coeff'Range loop
-                    Tmp.Coeff(I + Result.Degre - Right.Degre) := (Result.Coeff(Result.Degre) / Right_Big_Coeff) * Right.Coeff(I);
-                end loop;
-                Result := Result - Tmp;
-            end loop;
-        end if;
-        return Result;
+       if Right.Degre > Left.Degre then -- Si le diviseur est de degre plus grand que le divisé, on retourne directement le diviseur.
+	    Quotient := T_Polynome'(Degre => 0, Coeff => (0 => T_Fraction'(0, 1)));
+	else
+	    Quotient := Alloc_Polyn(Left.Degre - Right.Degre);
+	    Result := Left;
+	    for I in reverse Quotient.Coeff'Range loop
+		if Result.Degre >= Right.Degre then
+		    Quotient.Coeff(I) := Result.Coeff(Result.Degre) / Right.Coeff(Right.Degre);
+		    Result := Left -(Quotient * Right);
+		end if;
+	    end loop;
+	end if;
+	    return Result;
     end Reste;
 
     function Eval (Poly : T_Polynome; Value : T_Fraction) return T_Fraction is
         Result : T_Fraction := (0, 1);
     begin
-        for I in Poly.Coeff'Range loop
+	for I in reverse Poly.Coeff'Range loop
             Result := Result * Value + Poly.Coeff(I);
         end loop;
         return Result;

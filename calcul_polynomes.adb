@@ -1,45 +1,64 @@
 with Text_IO; use Text_IO;
 with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
+with Ada.Command_Line; use Ada.Command_Line;
 with gestion_fractions; use gestion_fractions;
 with gestion_polynomes; use gestion_polynomes;
 
 procedure calcul_polynomes is
-    --polynome1 : T_Polynome := (Degre => 2, Coeff => (0 => (1, 2), 1 => (2, 3), 2 => (3, 4)));
-    --polynome2 : T_Polynome := (Degre => 3, Coeff => (0 => (1, 2), 1 => (5, 3), 2 => (3, 4), 3 => (3, 7)));
 
-    polynome1 : T_Polynome := (Degre => 4, Coeff => (0 => (1, 2), 1 => (5, 2), 2 => (-2, 1), 3 => (13, 4), 4 => (1, 1)));
-    polynome2 : T_Polynome := (Degre => 2, Coeff => (0 => (-3, 2), 1 => (7, 2), 2 => (1, 1)));
+    I : Integer := 1;
+    Poly1 : T_Polynome;
+    Poly2 : T_Polynome;
 
-    Poly : T_Polynome := (Degre => 2, Coeff => (0 => (-3, 2), 1 => (7, 2), 2 => (15, 7)));
-
-    frac : T_Fraction := (1, 1);
-    f : T_Fraction := (3, 6);
+    INVALID_OPERATION : Exception;
 begin
-    Put("Addition : ");
-    Put(polynome1 + polynome2);
-    New_Line(1);
 
-    Put("Soustraction : ");
-    Put(polynome1 - polynome2);
-    New_Line(1);
+    if Argument_Count > 0 then
+	while not (Character'Pos(Argument(I)(1)) < 48 or Character'Pos(Argument(I)(1)) > 57) or (Character'Pos(Argument(I)(1)) = 45 and Argument(I)'Length > 1) loop -- Tant que l'agument est un entier.
+	    I := I + 1;
+	end loop;
 
-    Put("Multiplication : ");
-    Put(polynome1 * polynome2);
-    New_Line(1);
+	Poly1 := Alloc_Polyn((I - 3) / 2);
+	if not (I = 2) then -- S'il y a un polynome a gauche.
+	    if not (I mod 2 = 0) then -- Si le polynome est correct.
+		for J in 1..((Poly1.Degre + 1) * 2) loop
+		    if J mod 2 = 0 then
+			Poly1.Coeff((J - 2) / 2) := T_Fraction'(Integer'Value(Argument(J - 1)), Integer'Value(Argument(J)));
+		    end if;
+		end loop;
+	    else -- Si le polynome est incorrect.
+		raise INVALID_OPERATION;
+	    end if;
+	else -- S'il y a un entier a gauche.
+	    Poly1.Coeff(0) := T_Fraction'(Integer'Value(Argument(1)), 1);
+	end if;
 
-    Put("Multiplication par 3 : ");
-    Put(polynome1 * frac);
-    New_Line(1);
+	Poly2 := Alloc_Polyn((Argument_Count - I - 2) / 2);
+	if not (Argument_Count - I = 1) then -- S'il y a un polynome a droite.
+	    if not ((Argument_Count - I) mod 2 = 1) then -- Si le polynome est correct.
+		for J in (I + 1)..Argument_Count loop
+		    if (Argument_Count - J) mod 2 = 1 then
+			Poly2.Coeff((J - I) / 2) := T_Fraction'(Integer'Value(Argument(J)), Integer'Value(Argument(J + 1)));
+		    end if;
+		end loop;
+	    else -- Si le polynome est incorrect.
+		raise INVALID_OPERATION;
+	    end if;
+	else -- S'il y a un entier a droite.
+	    Poly2.Coeff(0) := T_Fraction'(Integer'Value(Argument(I + 1)), 1);
+	end if;
+    end if;
 
-    Put("Division : ");
-    Put(polynome1 / polynome2);
-    New_Line(1);
+    case Argument(I)(1) is
+    when '+' => Put(Poly1 + Poly2);
+    when '-' => Put(Poly1 - Poly2);
+    when 'x' => Put(Poly1 * Poly2);
+    when '/' => Put(Poly1 / Poly2);
+    when 'r' => Put(Reste(Poly1, Poly2));
+    when 'e' => Put(Eval(Poly1, Poly2.Coeff(0)));
+    when others => raise INVALID_OPERATION;
+    end case;
 
-    Put("Reste de la division : ");
-    Put(Reste(polynome1, polynome2));
-    New_Line(1);
-
-    Put("Evaluation en X = 1 : ");
-    Put(Eval(Poly, frac));
-    New_Line(1);
+exception
+    when others => Put("Operation invalide.");
 end calcul_polynomes;
